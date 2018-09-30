@@ -284,6 +284,15 @@ function! s:SelectRange()
 	call cursor(s:l2,s:c2)
 	let s:c2 = virtcol('.')
 
+	" if the selection end-points have crossed each other and next to each other
+	" the range is empty
+	" insert a dummy " " between the end-points and select it
+	if s:l1 == s:l2 && s:c1 == s:c2+1
+		" note the empty space after a
+		norm a 
+		let s:c2+=1
+	endif
+
 	" select range
 	if s:mode == "v" || s:mode == "V" || s:mode == "\<c-v>"
 		" if already in a visual mode, use that same mode
