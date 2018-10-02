@@ -131,6 +131,8 @@ for how to install TextObjectify - it should be comparable to other plugins.
 If you would like the documentation to also be installed, include textobjectify.txt
 into the relevant directory described above, replacing "plugin" with "doc".
 
+TextObjectify now needs `tpope/repeat.vim` to be able to repeat last operation with `.`.
+
 TextObjectify should have same defaults and be useful without any additional
 configuration.  However, to get the most out of TextObjectify, it is
 recommended that you configure it to your own tastes.

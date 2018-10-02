@@ -37,14 +37,32 @@ endif
 " default text objects
 let s:defaults = ["w","W","s","p","[","]","(",")","b","<",">","t","}","{","B",'"',"'"]
 
+" mapping redirection
+onoremap <silent> <Plug>OperatorIn :<c-u>call TextObjectifyWrapper(v:operator,'i', 'In')<cr>
+onoremap <silent> <Plug>OperatorAround :<c-u>call TextObjectifyWrapper(v:operator,'a', 'Around')<cr>
+xnoremap <silent> <Plug>OperatorVisualIn <esc>:<c-u>call TextObjectifyWrapper(visualmode(),'i', 'VisualIn')<cr>
+xnoremap <silent> <Plug>OperatorVisualAround <esc>:<c-u>call TextObjectifyWrapper(visualmode(),'a', 'VisualAround')<cr>
+
 " mappings to call plugin rather than vim text objects
-onoremap <silent> i      :<c-u>call TextObjectify(v:operator,'i')<cr>
-onoremap <silent> a      :<c-u>call TextObjectify(v:operator,'a')<cr>
-xnoremap <silent> i <esc>:<c-u>call TextObjectify(visualmode(),'i')<cr>
-xnoremap <silent> a <esc>:<c-u>call TextObjectify(visualmode(),'a')<cr>
+omap <silent> i      <Plug>OperatorIn
+omap <silent> a      <Plug>OperatorAround
+xmap <silent> i      <Plug>OperatorVisualIn
+xmap <silent> a      <Plug>OperatorVisualAround
 
+" wrapper over the main TextObjectify function to get repeat working
+function! TextObjectifyWrapper(mode, ia, suffix)
+  let object = nr2char(getchar())
+  let ret = TextObjectify(a:mode, a:ia, object)
+	" special case for "c" operator to also insert the text in place
+	if v:operator =~ "c"
+	  call repeat#set(v:operator . "\<Plug>Operator" . a:suffix . object . "\<C-a>\<esc>", v:count)
+	else
+	  call repeat#set(v:operator . "\<Plug>Operator" . a:suffix . object, v:count)
+	endif
+	return ret
+endfunction
 
-function! TextObjectify(mode,ia)
+function! TextObjectify(mode, ia, object)
 	" general layout of this function:
 	" - make arguments available script-scoped so I don't have to repeatedly
 	"   pass arguments along
@@ -66,7 +84,7 @@ function! TextObjectify(mode,ia)
 	let s:mode = a:mode
 
 	" get object
-	let l:object = nr2char(getchar())
+	let l:object = a:object
 
 	" figure out how to treat object.  four possible situations.  use the
 	" first we run into.
